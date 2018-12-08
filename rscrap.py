@@ -68,14 +68,15 @@ def load_routers(f,expressions,functions):
             pass
     return routers
 def routers_to_csv(routers,output,separator):
-    if output == '':
-        output = os.getcwd()
+    
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, output)
     try:
-        os.makedirs(os.path.dirname(output))
-    except FileNotFoundError:
+        os.makedirs(os.path.dirname(filename))
+    except (FileNotFoundError,FileExistsError):
         pass
         
-    with open(output,'w+') as f:
+    with open(filename,'w+') as f:
         writer = csv.DictWriter(f,fieldnames=['Name','Building-Block','Function','System Serial Number','Model Number','SW Version'],delimiter=separator,lineterminator='\n')
         writer.writeheader()
         for router in routers:
@@ -102,7 +103,7 @@ def start(source,output,folder,separator):
     This arguments defines separator for csv output file
     '''
     routers = []
-    expressions = (('spawn ssh -x -l rancid ([A-Za-z0-9#]*)',),('[Ss]ystem [Ss]erial [Nn]umber\s*: ([-A-Z0-9]*)',),('Model [nN]umber\s*: ([-A-Z0-9]*)',),('Software.*Version ([A-Za-z0-9().]*)',),('(SW Version)',),('Error: EOF received',))
+    expressions = (('spawn ssh -x -l rancid (\S*)',),('[Ss]ystem [Ss]erial [Nn]umber\s*: ([-A-Z0-9]*)',),('Model [nN]umber\s*: ([-A-Z0-9]*)',),('Software.*Version ([A-Za-z0-9().]*)',),('(SW Version)',),('Error: EOF received',))
     functions = {'CPLA':'CPLA','OPLA':'OPLA','LTAP':'LTAP','DUT':'DUT','MLA':'DISTRIBUTION','MLB':'DISTRIBUTION','MLS':'CORE'}
     if folder:
         for fold in source:
